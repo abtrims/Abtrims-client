@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   title: "AB TRIMS - Your Reliable Partner For Garment Compliance, Testing Solutions & Services in Bangladesh.",
   description: "Your one-stop solution for all your Garment Compliance, Testing Solutions & Services needs in Bangladesh.",
   icons: {
-    icon: "/logo.jpeg",
+    icon: "/favicon.jpeg",
   },
 };
 
