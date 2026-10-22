@@ -1,0 +1,424 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------
+   AB Trims brand colours, taken from public/logo.jpeg:
+     navy   #013A71   orange #D77709
+   Light: navy leads (buttons, links), orange highlights.
+   Dark:  a deep navy background; orange leads, since navy would
+          disappear on it. Text pairs meet WCAG AA contrast.
+   ------------------------------------------------------------------ */
+:root {
+  --brand-navy: #013a71;
+  --brand-orange: #d77709;
+
+  --background: #ffffff;
+  --foreground: #0b1f36;
+  --card: #ffffff;
+  --card-foreground: #0b1f36;
+  --popover: #ffffff;
+  --popover-foreground: #0b1f36;
+  --primary: #013a71;
+  --primary-foreground: #ffffff;
+  --primary-dark: #012a52;
+  --secondary: #fdf1e3;
+  --secondary-foreground: #8a4a05;
+  --muted: #f3f6fa;
+  --muted-foreground: #586a80;
+  --accent: #fef3e6;
+  --accent-foreground: #013a71;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #d9e1ec;
+  --ring: #d77709;
+  --chart-1: #013a71;
+  --chart-2: #d77709;
+  --chart-3: #3b7bc0;
+  --chart-4: #f2a54a;
+  --chart-5: #8a9bb0;
+  --sidebar: #f6f8fb;
+  --sidebar-foreground: #0b1f36;
+  --sidebar-primary: #013a71;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fdf1e3;
+  --sidebar-accent-foreground: #013a71;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #d77709;
+
+  --font-sans: var(--font-geist-sans), Roboto, sans-serif;
+  --font-serif: var(--font-playfair-display), serif;
+  --font-mono: var(--font-geist-mono), Fira Code, monospace;
+
+  --radius: 0.625rem;
+  --shadow-x: 0px;
+  --shadow-y: 1px;
+  --shadow-blur: 3px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0.1;
+  --shadow-color: hsl(210 98% 15%);
+  --shadow-2xs: 0 1px 2px 0 hsl(210 98% 15% / 0.05);
+  --shadow-xs: 0 1px 2px 0 hsl(210 98% 15% / 0.06);
+  --shadow-sm: 0 1px 3px 0 hsl(210 98% 15% / 0.08), 0 1px 2px -1px hsl(210 98% 15% / 0.08);
+  --shadow: 0 1px 3px 0 hsl(210 98% 15% / 0.1), 0 1px 2px -1px hsl(210 98% 15% / 0.1);
+  --shadow-md: 0 4px 6px -1px hsl(210 98% 15% / 0.1), 0 2px 4px -2px hsl(210 98% 15% / 0.1);
+  --shadow-lg: 0 10px 15px -3px hsl(210 98% 15% / 0.1), 0 4px 6px -4px hsl(210 98% 15% / 0.1);
+  --shadow-xl: 0 20px 25px -5px hsl(210 98% 15% / 0.1), 0 8px 10px -6px hsl(210 98% 15% / 0.1);
+  --shadow-2xl: 0 25px 50px -12px hsl(210 98% 15% / 0.25);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+}
+
+.dark {
+  --brand-navy: #4f8fd0;
+  --brand-orange: #ee8a1e;
+
+  --background: #0a1626;
+  --foreground: #e8eef6;
+  --card: #0f2036;
+  --card-foreground: #e8eef6;
+  --popover: #0f2036;
+  --popover-foreground: #e8eef6;
+  --primary: #ee8a1e;
+  --primary-foreground: #0a1626;
+  --primary-dark: #d77709;
+  --secondary: #16304f;
+  --secondary-foreground: #e8eef6;
+  --muted: #132840;
+  --muted-foreground: #9fb1c7;
+  --accent: #1a3657;
+  --accent-foreground: #f6c58c;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #1e3552;
+  --input: #27425f;
+  --ring: #ee8a1e;
+  --chart-1: #ee8a1e;
+  --chart-2: #4f8fd0;
+  --chart-3: #f6b86c;
+  --chart-4: #8fbcee;
+  --chart-5: #7f91a8;
+  --sidebar: #0c1a2d;
+  --sidebar-foreground: #e8eef6;
+  --sidebar-primary: #ee8a1e;
+  --sidebar-primary-foreground: #0a1626;
+  --sidebar-accent: #16304f;
+  --sidebar-accent-foreground: #f6c58c;
+  --sidebar-border: #1e3552;
+  --sidebar-ring: #ee8a1e;
+
+  --shadow-color: hsl(215 60% 3%);
+  --shadow-2xs: 0 1px 2px 0 hsl(215 60% 3% / 0.3);
+  --shadow-xs: 0 1px 2px 0 hsl(215 60% 3% / 0.35);
+  --shadow-sm: 0 1px 3px 0 hsl(215 60% 3% / 0.4), 0 1px 2px -1px hsl(215 60% 3% / 0.4);
+  --shadow: 0 1px 3px 0 hsl(215 60% 3% / 0.45), 0 1px 2px -1px hsl(215 60% 3% / 0.45);
+  --shadow-md: 0 4px 6px -1px hsl(215 60% 3% / 0.45), 0 2px 4px -2px hsl(215 60% 3% / 0.45);
+  --shadow-lg: 0 10px 15px -3px hsl(215 60% 3% / 0.5), 0 4px 6px -4px hsl(215 60% 3% / 0.5);
+  --shadow-xl: 0 20px 25px -5px hsl(215 60% 3% / 0.5), 0 8px 10px -6px hsl(215 60% 3% / 0.5);
+  --shadow-2xl: 0 25px 50px -12px hsl(215 60% 3% / 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-dark: var(--primary-dark);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-orange: var(--brand-orange);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@keyframes shine {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Lenis Smooth Scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* POS receipt — 80mm thermal printer output */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #pos-invoice-print,
+  #pos-invoice-print * {
+    visibility: visible !important;
+  }
+
+  #pos-invoice-print {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 !important;
+    padding: 3mm !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  #pos-invoice-print img {
+    max-width: 100% !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #label-print-sheet,
+  #label-print-sheet * {
+    visibility: visible !important;
+  }
+
+  #label-print-sheet {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .label-print-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 4mm !important;
+  }
+
+  .label-print-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1mm !important;
+    text-align: center !important;
+    border: 1px solid #999 !important;
+    border-radius: 2mm !important;
+    padding: 2mm !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+
+/* Landing page price-highlight animations */
+@keyframes price-pulse-scale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes price-draw-stroke {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  45% {
+    stroke-dashoffset: 0;
+  }
+  90% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 1;
+  }
+}
+/* ------------------------------------------------------------------
+   Colourful upload controls, so "choose image/file" is easy to spot.
+   - native <input type="file">  -> gradient "Choose File" button
+   - .upload-zone                -> dashed drop area (label wrapping a hidden input)
+   - .upload-icon                -> gradient circle for the icon inside a zone
+   - .upload-btn                 -> small gradient button/label
+   ------------------------------------------------------------------ */
+:root {
+  --upload-from: #013a71;
+  --upload-to: #d77709;
+}
+.dark {
+  --upload-from: #2f6fb0;
+  --upload-to: #ee8a1e;
+}
+
+input[type="file"]::file-selector-button {
+  margin-right: 0.75rem;
+  padding: 0 0.875rem;
+  height: 100%;
+  border: 0;
+  border-radius: 0.5rem;
+  background-image: linear-gradient(135deg, var(--upload-from), var(--upload-to));
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+input[type="file"]::file-selector-button:hover {
+  filter: brightness(1.1);
+}
+input[type="file"] {
+  cursor: pointer;
+}
+
+.upload-zone {
+  border: 2px dashed color-mix(in oklab, var(--upload-from) 55%, transparent);
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--upload-from) 10%, transparent),
+    color-mix(in oklab, var(--upload-to) 10%, transparent)
+  );
+  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+.upload-zone:hover {
+  border-color: var(--upload-from);
+  box-shadow: 0 4px 16px -4px color-mix(in oklab, var(--upload-from) 45%, transparent);
+}
+
+.upload-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.625rem;
+  background-image: linear-gradient(135deg, var(--upload-from), var(--upload-to));
+  color: #fff;
+  box-shadow: 0 4px 12px -4px color-mix(in oklab, var(--upload-to) 60%, transparent);
+}
+
+.upload-btn {
+  background-image: linear-gradient(135deg, var(--upload-from), var(--upload-to));
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+.upload-btn:hover {
+  filter: brightness(1.1);
+}
+
+/* Brand logo marquee (see BrandMarquee.tsx): the track holds the list twice,
+   so sliding it by half its width loops seamlessly. */
+@keyframes brand-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Progress line in BrandLoader (loading screen + preloader) */
+@keyframes brand-loader {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
