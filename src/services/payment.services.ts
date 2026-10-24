@@ -16,7 +16,7 @@ export const initiateBkashPayment = async (orderId: string) => {
   }
 };
 
-// Landing page orders, placed without an account
+// Orders placed without an account (online checkout or landing page)
 export const initiateBkashGuestPayment = async (orderId: string) => {
   try {
     return await httpClient.post<{ bkashURL: string; orderId: string }>(
@@ -34,6 +34,20 @@ export const initiateSslcommerzPayment = async (orderId: string) => {
   try {
     return await httpClient.post<{ gatewayPageURL: string; orderId: string }>(
       "/payments/sslcommerz/initiate",
+      { orderId },
+    );
+  } catch (error: any) {
+    throw new Error(
+      error?.response?.data?.message || "Failed to start SSLCommerz payment",
+    );
+  }
+};
+
+// Orders placed without an account
+export const initiateSslcommerzGuestPayment = async (orderId: string) => {
+  try {
+    return await httpClient.post<{ gatewayPageURL: string; orderId: string }>(
+      "/payments/sslcommerz/initiate-guest",
       { orderId },
     );
   } catch (error: any) {

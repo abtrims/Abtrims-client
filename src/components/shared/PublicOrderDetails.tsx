@@ -109,6 +109,7 @@ export default function PublicOrderDetails({ order }: { order: IPublicOrder }) {
         <h2 className="font-black text-lg">Shipping Address</h2>
         <div className="text-sm leading-relaxed text-muted-foreground bg-muted/40 p-4 rounded-xl border">
           <p className="font-semibold text-foreground">{order.fullName} — {order.phone}</p>
+          {order.companyName && <p>{order.companyName}</p>}
           {order.email && <p>{order.email}</p>}
           <p>{order.address}, {order.district}</p>
           {order.notes && (
@@ -132,6 +133,12 @@ export default function PublicOrderDetails({ order }: { order: IPublicOrder }) {
           <span className="text-muted-foreground">Shipping</span>
           <span className="font-bold">৳{order.shippingFee.toFixed(2)}</span>
         </div>
+        {order.vatAmount > 0 && (
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">VAT</span>
+            <span className="font-bold">৳{order.vatAmount.toFixed(2)}</span>
+          </div>
+        )}
         {order.discountAmount > 0 && (
           <div className="flex justify-between items-center text-primary">
             <span className="font-medium text-muted-foreground">Discount</span>

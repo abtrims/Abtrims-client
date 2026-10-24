@@ -61,6 +61,16 @@ export const orderColumns: ColumnDef<IOrder>[] = [
     ),
   },
   {
+    accessorKey: "companyName",
+    header: "Company",
+    cell: ({ row }) =>
+      row.original.companyName ? (
+        <span className="text-sm font-medium">{row.original.companyName}</span>
+      ) : (
+        <span className="text-xs text-muted-foreground">—</span>
+      ),
+  },
+  {
     id: "products",
     header: "Products",
     cell: ({ row }) => {

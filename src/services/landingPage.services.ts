@@ -74,6 +74,7 @@ export const placeLandingPageOrder = async (
   slug: string,
   payload: {
     fullName: string;
+    companyName?: string;
     phone: string;
     address: string;
     district: string;
@@ -86,11 +87,19 @@ export const placeLandingPageOrder = async (
   },
 ) => {
   try {
-    return await httpClient.post<{ id: string }>(
+    return await httpClient.post<{ id: string; userId: string | null }>(
       `/landing-pages/slug/${slug}/order`,
       payload,
     );
   } catch (error: any) {
+    // Guest checkout is off and the customer isn't logged in
+    if (error?.response?.status === 403) {
+      return {
+        success: false,
+        message: error.response.data?.message || "Please log in to place an order",
+        code: "LOGIN_REQUIRED",
+      } as const;
+    }
     throw new Error(
       error?.response?.data?.message || "Failed to place order",
     );

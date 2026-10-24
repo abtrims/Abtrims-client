@@ -15,14 +15,18 @@ import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import ReviewModal from "../../User/Review/ReviewModal";
-import { Printer, RotateCcw, Star, Truck } from "lucide-react";
+import { HandCoins, Printer, RotateCcw, Star, Truck } from "lucide-react";
 import ProcessReturnDialog, {
   canReturnOrder,
 } from "../OrderReturn/ProcessReturnDialog";
 import { getSiteSettings } from "@/services/siteSetting.services";
 import { usePermissions } from "@/providers/PermissionProvider";
 import MarkFraudButton from "./MarkFraudButton";
-import { printOrderChallan, printOrderInvoice } from "@/lib/printOrderInvoice";
+import {
+  printOrderChallan,
+  printOrderInvoice,
+  printOrderMoneyReceipt,
+} from "@/lib/printOrderInvoice";
 import CourierFraudReport from "./CourierFraudReport";
 import { getReturnsByOrder } from "@/services/orderReturn.services";
 import { IOrderReturn } from "@/types/orderReturn.types";
@@ -83,7 +87,7 @@ export default function ViewOrderDialog({
           </DialogDescription>
           {/* A4 invoice and returns — admin only */}
           {!showReview && (
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <Button
                 type="button"
                 size="lg"
@@ -105,6 +109,16 @@ export default function ViewOrderDialog({
               >
                 <Truck className="size-5" />
                 Print Challan
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                className="h-12 w-full gap-2 rounded-xl text-base font-bold sm:w-fit sm:px-6"
+                onClick={() => printOrderMoneyReceipt(order, siteSettings)}
+              >
+                <HandCoins className="size-5" />
+                Money Receipt
               </Button>
               <MarkFraudButton order={order} size="lg" className="w-full sm:w-fit" />
             {canReturnOrder(order) && can("return.manage") && (
@@ -131,6 +145,9 @@ export default function ViewOrderDialog({
                 Customer
               </p>
               <p className="font-bold">{order.fullName}</p>
+              {order.companyName && (
+                <p className="text-sm font-medium">{order.companyName}</p>
+              )}
               <p className="text-sm">{order.phone}</p>
               {(order.email || order.user?.email) && (
                 <p className="text-sm text-muted-foreground break-all">
@@ -274,6 +291,12 @@ export default function ViewOrderDialog({
               <span className="text-muted-foreground">Shipping</span>
               <span className="font-bold">৳{(order.shippingFee || 0).toFixed(2)}</span>
             </div>
+            {order.vatAmount > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">VAT</span>
+                <span className="font-bold">৳{order.vatAmount.toFixed(2)}</span>
+              </div>
+            )}
             {order.discountAmount > 0 && (
               <div className="flex justify-between items-center text-primary">
                 <span className="font-medium text-muted-foreground">Discount</span>

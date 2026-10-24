@@ -111,6 +111,34 @@ export default function FlashSalePage() {
 
   const isLoading = isLoadingConfig || isLoadingProducts;
 
+  // Same rule the homepage uses (saved settings, not unsaved form edits)
+  const saved = configData?.data;
+  const fmtTime = (iso: string) =>
+    new Date(iso).toLocaleString("en-GB", {
+      day: "numeric",
+      month: "short",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  const now = Date.now();
+  const status: { tone: "live" | "wait" | "off"; text: string } = !saved
+    ? { tone: "off", text: "Not set up yet." }
+    : !saved.isActive
+      ? { tone: "off", text: "Off. Tick Active and save to show it on the homepage." }
+      : !saved.startTime || !saved.endTime
+        ? { tone: "off", text: "Hidden: set both a start and an end time." }
+        : saved.products.length === 0
+          ? { tone: "off", text: "Hidden: no products selected." }
+          : now < new Date(saved.startTime).getTime()
+            ? {
+                tone: "wait",
+                text: `Scheduled: shows on the homepage from ${fmtTime(saved.startTime)}.`,
+              }
+            : now > new Date(saved.endTime).getTime()
+              ? { tone: "off", text: `Ended on ${fmtTime(saved.endTime)}. Set a new end time to show it again.` }
+              : { tone: "live", text: `Live on the homepage until ${fmtTime(saved.endTime)}.` };
+
   if (isLoading) {
     return (
       <div className="flex h-[400px] items-center justify-center">
@@ -134,6 +162,28 @@ export default function FlashSalePage() {
           <div className="flex items-center gap-2">
             <Zap className="h-5 w-5 text-primary" />
             <h4 className="font-semibold">Flash Sale Settings</h4>
+          </div>
+
+          <div
+            role="status"
+            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium ${
+              status.tone === "live"
+                ? "border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400"
+                : status.tone === "wait"
+                  ? "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                  : "border-border bg-muted/50 text-muted-foreground"
+            }`}
+          >
+            <span
+              className={`size-2 shrink-0 rounded-full ${
+                status.tone === "live"
+                  ? "bg-green-500"
+                  : status.tone === "wait"
+                    ? "bg-amber-500"
+                    : "bg-muted-foreground/50"
+              }`}
+            />
+            {status.text}
           </div>
 
           <div className="flex items-center gap-2.5">

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Loader2, CheckCircle2, User, MapPin, Phone, Printer, Store, StickyNote } from "lucide-react";
+import { X, Loader2, CheckCircle2, User, MapPin, Phone, Printer, Store, StickyNote, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { createPosOrder } from "@/services/pos.services";
 import { BD_MOBILE_MESSAGE, getPhoneHint, isValidBdPhone, sanitizePhoneInput } from "@/lib/phone";
@@ -31,6 +31,7 @@ type ReceiptData = {
   createdAt: string;
   customer: {
     name: string;
+    companyName: string | null;
     phone: string | null;
     address: string | null;
     note: string | null;
@@ -40,6 +41,7 @@ type ReceiptData = {
   subtotal: number;
   discount: number;
   vatAmount: number;
+  shippingCharge: number;
   total: number;
 };
 
@@ -47,6 +49,7 @@ export default function PosCheckoutModal({
   subtotal,
   discount,
   vatAmount,
+  shippingCharge,
   total,
   cartItems,
   onClose,
@@ -55,6 +58,7 @@ export default function PosCheckoutModal({
   subtotal: number;
   discount: number;
   vatAmount: number;
+  shippingCharge: number;
   total: number;
   cartItems: any[];
   onClose: () => void;
@@ -66,6 +70,7 @@ export default function PosCheckoutModal({
   // Customer info
   const [customer, setCustomer] = useState({
     name: "",
+    companyName: "",
     phone: "",
     address: "",
     note: "",
@@ -128,10 +133,11 @@ export default function PosCheckoutModal({
       subtotal,
       discount,
       tax: vatAmount,
-      shippingCharge: 0,
+      shippingCharge,
       total,
       customer: {
         name: customer.name || "Walk-in Customer",
+        companyName: customer.companyName.trim() || null,
         phone: customer.phone.trim(),
         address: customer.address || null,
         note: customer.note.trim() || null,
@@ -157,6 +163,7 @@ export default function PosCheckoutModal({
         subtotal,
         discount,
         vatAmount,
+        shippingCharge,
         total,
       });
     } else {
@@ -218,6 +225,7 @@ export default function PosCheckoutModal({
 
               <div className="text-xs space-y-0.5">
                 <p><span className="text-gray-500">Customer:</span> {receipt.customer.name}</p>
+                {receipt.customer.companyName && <p><span className="text-gray-500">Company:</span> {receipt.customer.companyName}</p>}
                 {receipt.customer.phone && <p><span className="text-gray-500">Phone:</span> {receipt.customer.phone}</p>}
                 {receipt.customer.address && <p><span className="text-gray-500">Address:</span> {receipt.customer.address}</p>}
                 {receipt.customer.note && <p><span className="text-gray-500">Note:</span> {receipt.customer.note}</p>}
@@ -255,6 +263,12 @@ export default function PosCheckoutModal({
                   <div className="flex justify-between">
                     <span className="text-gray-500">VAT</span>
                     <span>+৳{fmt(receipt.vatAmount)}</span>
+                  </div>
+                )}
+                {receipt.shippingCharge > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Shipping</span>
+                    <span>+৳{fmt(receipt.shippingCharge)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-sm pt-1 border-t border-gray-200">
@@ -354,6 +368,17 @@ export default function PosCheckoutModal({
                   className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white transition-all text-sm"
                   value={customer.name}
                   onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
+                />
+              </div>
+              <div className="relative">
+                <Building2 className="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Company Name (optional)"
+                  maxLength={200}
+                  className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white transition-all text-sm"
+                  value={customer.companyName}
+                  onChange={(e) => setCustomer({ ...customer, companyName: e.target.value })}
                 />
               </div>
               <div className="relative">
@@ -504,6 +529,12 @@ export default function PosCheckoutModal({
                 <div className="flex justify-between text-gray-600">
                   <span>VAT</span>
                   <span>+৳{fmt(vatAmount)}</span>
+                </div>
+              )}
+              {shippingCharge > 0 && (
+                <div className="flex justify-between text-gray-600">
+                  <span>Shipping</span>
+                  <span>+৳{fmt(shippingCharge)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-gray-900 text-base pt-2 border-t border-gray-200">

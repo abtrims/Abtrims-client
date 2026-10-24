@@ -15,6 +15,7 @@ export interface ISiteSetting {
   whatsapp: string | null;
   copyrightText: string;
   lowStockThreshold: number;
+  guestCheckoutEnabled: boolean;
   updatedAt: string;
 }
 
@@ -33,4 +34,5 @@ export interface SiteSettingFormValues {
   whatsapp: string;
   copyrightText: string;
   lowStockThreshold: string;
+  guestCheckoutEnabled: boolean;
 }

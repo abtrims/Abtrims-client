@@ -8,7 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Save, Upload, Store, Share2, PackageX } from "lucide-react";
+import {
+  Loader2,
+  Save,
+  Upload,
+  Store,
+  Share2,
+  PackageX,
+  ShoppingBag,
+} from "lucide-react";
 import {
   getSiteSettings,
   updateSiteSettings,
@@ -30,6 +38,7 @@ const initialFormValues: SiteSettingFormValues = {
   whatsapp: "",
   copyrightText: "",
   lowStockThreshold: "5",
+  guestCheckoutEnabled: true,
 };
 
 export default function SiteSettingsPage() {
@@ -60,6 +69,7 @@ export default function SiteSettingsPage() {
             whatsapp,
             copyrightText,
             lowStockThreshold,
+            guestCheckoutEnabled,
             logo,
           } = res.data;
           setFormValues({
@@ -77,6 +87,7 @@ export default function SiteSettingsPage() {
             whatsapp: whatsapp || "",
             copyrightText: copyrightText || "",
             lowStockThreshold: String(lowStockThreshold ?? 5),
+            guestCheckoutEnabled: guestCheckoutEnabled ?? true,
           });
           setLogoPreview(logo || null);
         }
@@ -381,6 +392,45 @@ export default function SiteSettingsPage() {
               A product (or a single size/color) with this many or fewer left
               shows on the Low Stock page and the dashboard.
             </p>
+          </div>
+        </div>
+
+        {/* Checkout */}
+        <div className="bg-card border rounded-xl p-6 shadow-sm space-y-6">
+          <div className="flex items-center gap-2">
+            <ShoppingBag className="h-5 w-5 text-primary" />
+            <h4 className="font-semibold">Checkout</h4>
+          </div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="guestCheckoutEnabled">Guest checkout</Label>
+              <p className="text-xs text-muted-foreground">
+                When on, customers can order without logging in, from the
+                product page (Buy Now), cart checkout and landing pages. When
+                off, they are sent to the login page before ordering.
+              </p>
+            </div>
+            <button
+              id="guestCheckoutEnabled"
+              type="button"
+              role="switch"
+              aria-checked={formValues.guestCheckoutEnabled}
+              onClick={() =>
+                setFormValues((prev) => ({
+                  ...prev,
+                  guestCheckoutEnabled: !prev.guestCheckoutEnabled,
+                }))
+              }
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                formValues.guestCheckoutEnabled ? "bg-primary" : "bg-muted-foreground/30"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  formValues.guestCheckoutEnabled ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
           </div>
         </div>
 

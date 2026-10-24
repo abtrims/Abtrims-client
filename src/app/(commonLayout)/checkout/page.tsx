@@ -23,7 +23,9 @@ import { validateCouponCode } from "@/services/coupon.services";
 import { getShippingSettings } from "@/services/shippingSetting.services";
 import { getPaymentSettings } from "@/services/paymentSetting.services";
 import {
+  initiateBkashGuestPayment,
   initiateBkashPayment,
+  initiateSslcommerzGuestPayment,
   initiateSslcommerzPayment,
 } from "@/services/payment.services";
 import PaymentMethodPicker, {
@@ -314,6 +316,7 @@ function CheckoutContent() {
     const formData = new FormData(e.currentTarget);
     const payload: any = {
       fullName: formData.get("fullName") as string,
+      companyName: (formData.get("companyName") as string)?.trim() || undefined,
       phone,
       email: (formData.get("email") as string)?.trim() || undefined,
       district: selectedDistrict,
@@ -360,8 +363,17 @@ function CheckoutContent() {
       if (!res.success) {
         toast.error(res.message || "Failed to place order");
         setIsLoading(false);
+        // Guest checkout is off: log in, then come back to this checkout
+        if (res.code === "LOGIN_REQUIRED") {
+          const query = searchParams.toString();
+          router.push(
+            `/login?redirect=${encodeURIComponent(`/checkout${query ? `?${query}` : ""}`)}`,
+          );
+        }
         return;
       }
+
+      const isGuestOrder = !res.data.userId;
 
       clearCheckoutSessionToken();
       if (!isDirectBuy && !isFromCartSelection) {
@@ -377,8 +389,16 @@ function CheckoutContent() {
           // confirmation (paid) or payment-failed page
           const gatewayURL =
             paymentMethod === "BKASH"
-              ? (await initiateBkashPayment(res.data.id)).data?.bkashURL
-              : (await initiateSslcommerzPayment(res.data.id)).data?.gatewayPageURL;
+              ? (
+                  await (isGuestOrder ? initiateBkashGuestPayment : initiateBkashPayment)(
+                    res.data.id,
+                  )
+                ).data?.bkashURL
+              : (
+                  await (isGuestOrder
+                    ? initiateSslcommerzGuestPayment
+                    : initiateSslcommerzPayment)(res.data.id)
+                ).data?.gatewayPageURL;
           if (gatewayURL) {
             window.location.href = gatewayURL;
             return;
@@ -472,18 +492,31 @@ function CheckoutContent() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address (Optional)</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-xl"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="companyName">Company Name (Optional)</Label>
+                  <Input
+                    id="companyName"
+                    name="companyName"
+                    placeholder="Your company"
+                    autoComplete="organization"
+                    maxLength={200}
+                    className="h-12 rounded-xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address (Optional)</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-12 rounded-xl"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

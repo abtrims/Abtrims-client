@@ -19,6 +19,47 @@ const money = (value: number) => {
   })}`;
 };
 
+// Bangladeshi grouping (crore, lakh, thousand): 125000 -> "One Lakh Twenty Five Thousand"
+const ONES = [
+  "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+  "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen",
+  "Eighteen", "Nineteen",
+];
+const TENS = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+const belowHundred = (n: number) =>
+  n < 20 ? ONES[n] : `${TENS[Math.floor(n / 10)]}${n % 10 ? ` ${ONES[n % 10]}` : ""}`;
+
+const belowThousand = (n: number) => {
+  const hundreds = Math.floor(n / 100);
+  const rest = n % 100;
+  return [hundreds ? `${ONES[hundreds]} Hundred` : "", rest ? belowHundred(rest) : ""]
+    .filter(Boolean)
+    .join(" ");
+};
+
+const integerToWords = (n: number): string => {
+  if (n === 0) return "Zero";
+  const parts: string[] = [];
+  const crore = Math.floor(n / 10_000_000);
+  const lakh = Math.floor((n % 10_000_000) / 100_000);
+  const thousand = Math.floor((n % 100_000) / 1000);
+  const rest = n % 1000;
+  if (crore) parts.push(`${integerToWords(crore)} Crore`);
+  if (lakh) parts.push(`${belowHundred(lakh)} Lakh`);
+  if (thousand) parts.push(`${belowHundred(thousand)} Thousand`);
+  if (rest) parts.push(belowThousand(rest));
+  return parts.join(" ");
+};
+
+// "Taka One Thousand Two Hundred Fifty and Fifty Paisa Only"
+const amountInWords = (value: number) => {
+  const amount = Math.max(0, Math.round((value || 0) * 100));
+  const taka = Math.floor(amount / 100);
+  const paisa = amount % 100;
+  return `Taka ${integerToWords(taka)}${paisa ? ` and ${belowHundred(paisa)} Paisa` : ""} Only`;
+};
+
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
   cash: "Cash",
   card: "Card",
@@ -75,8 +116,9 @@ const splitCombination = (
 };
 
 // Invoice: full prices and totals. Challan: the delivery note that travels
-// with the parcel, same layout but quantities only (no prices).
-type PrintKind = "invoice" | "challan";
+// with the parcel, same layout but quantities only (no prices). Money
+// receipt: acknowledges the payment for the order.
+type PrintKind = "invoice" | "challan" | "receipt";
 
 const buildInvoiceHtml = (
   order: IOrder,
@@ -84,6 +126,7 @@ const buildInvoiceHtml = (
   kind: PrintKind,
 ) => {
   const isChallan = kind === "challan";
+  const isReceipt = kind === "receipt";
   const siteName = site?.siteName || "AB Trims";
   const items = (order.items ?? []) as unknown as InvoiceItem[];
   const subtotal = items.reduce(
@@ -147,11 +190,127 @@ const buildInvoiceHtml = (
     })
     .join("");
 
+  const orderNo = order.orderNumber || order.id;
+  const title = isChallan ? "Challan" : isReceipt ? "Money Receipt" : "Invoice";
+  const paymentStatus =
+    order.paymentStatus.charAt(0) + order.paymentStatus.slice(1).toLowerCase();
+  const paymentLine = paymentMethod
+    ? `${escapeHtml(paymentMethod)} (${escapeHtml(paymentStatus)})`
+    : escapeHtml(paymentStatus);
+
+  const customerLines = `
+      <div class="customer-name">${escapeHtml(order.fullName || "Customer")}</div>
+      ${order.companyName ? `<div><b>Company:</b> ${escapeHtml(order.companyName)}</div>` : ""}
+      ${order.address ? `<div>${escapeHtml([order.address, order.district].filter(Boolean).join(", "))}</div>` : ""}
+      ${order.phone ? `<div>Phone: ${escapeHtml(order.phone)}</div>` : ""}
+      ${email ? `<div>Email: ${escapeHtml(email)}</div>` : ""}`;
+
+  // Every charge on its own line, even when it is zero
+  const totalsTable = `<table class="totals">
+      <tr><td>Subtotal</td><td>${money(subtotal)}</td></tr>
+      <tr><td>Discount</td><td>${order.discountAmount > 0 ? "-" : ""}${money(order.discountAmount)}</td></tr>
+      <tr><td>VAT</td><td>${money(order.vatAmount)}</td></tr>
+      <tr><td>Shipping</td><td>${money(order.shippingFee)}</td></tr>
+      <tr class="grand"><td>Grand Total</td><td>${money(order.totalAmount)}</td></tr>
+    </table>`;
+
+  // Customer confirms delivery: name and signature on separate lines
+  const receivedBlock = `<div class="received">
+    <div class="received-note">Received the above goods in good condition.</div>
+    <div class="sign-row">
+      <div class="sign"><div class="sign-line"></div>Received By (Name)</div>
+      <div class="sign"><div class="sign-line"></div>Receiver's Signature &amp; Date</div>
+      <div class="sign"><div class="sign-line"></div>Authorized Signature</div>
+    </div>
+  </div>`;
+
+  const itemsTable = `<table class="items">
+    <thead>
+      <tr>
+        <th>Product</th>
+        ${attributeColumns.map((col) => `<th>${escapeHtml(col)}</th>`).join("")}
+        ${hasFallback ? "<th>Variant</th>" : ""}
+        <th class="center" style="width:${isChallan ? 80 : 48}px">${isChallan ? "Quantity" : "Qty"}</th>
+        ${isChallan ? "" : `<th style="width:80px">Unit Price</th>
+        <th style="width:90px">Total</th>`}
+      </tr>
+    </thead>
+    <tbody>${bodyRows}</tbody>
+    ${isChallan ? `<tfoot>
+      <tr>
+        <td colspan="${1 + attributeColumns.length + (hasFallback ? 1 : 0)}" style="text-align:right">Total Quantity</td>
+        <td class="center">${totalQty}</td>
+      </tr>
+    </tfoot>` : ""}
+  </table>`;
+
+  const documentBody = isReceipt
+    ? `<h1>MONEY RECEIPT</h1>
+
+  <div class="info">
+    <div>
+      <div><b>Received with thanks from</b></div>
+      ${customerLines}
+    </div>
+    <div>
+      <div><b>Receipt No:</b> MR-${escapeHtml(orderNo)}</div>
+      <div><b>Date:</b> ${escapeHtml(format(new Date(), "d/M/yyyy"))}</div>
+      <div><b>Invoice No:</b> ${escapeHtml(orderNo)}</div>
+      <div><b>Order Date:</b> ${escapeHtml(format(new Date(order.createdAt), "d/M/yyyy"))}</div>
+    </div>
+  </div>
+
+  <div class="amount-box">
+    <div class="amount-label">Amount</div>
+    <div class="amount-value">${money(order.totalAmount)}</div>
+    <div class="amount-words"><b>In Words:</b> ${escapeHtml(amountInWords(order.totalAmount))}</div>
+  </div>
+
+  <div class="bottom">
+    <div class="pay-info">
+      <div><b>Payment Method:</b> ${paymentMethod ? escapeHtml(paymentMethod) : "-"}</div>
+      <div><b>Payment Status:</b> ${escapeHtml(paymentStatus)}</div>
+      ${order.notes ? `<div class="note"><b>Note:</b> ${escapeHtml(order.notes)}</div>` : ""}
+    </div>
+    ${totalsTable}
+  </div>
+
+  <div class="sign-row">
+    <div class="sign"><div class="sign-line"></div>Customer Signature</div>
+    <div class="sign"><div class="sign-line"></div>Authorized Signature</div>
+  </div>`
+    : `<h1>${isChallan ? "DELIVERY CHALLAN" : "INVOICE"}</h1>
+
+  <div class="info">
+    <div>
+      <div><b>${isChallan ? "Deliver To" : "Bill To"}</b></div>
+      ${customerLines}
+      ${order.notes ? `<div class="note"><b>Note:</b> ${escapeHtml(order.notes)}</div>` : ""}
+    </div>
+    <div>
+      <div><b>${isChallan ? "Challan No" : "Invoice No"}:</b> ${escapeHtml(orderNo)}</div>
+      <div><b>${isChallan ? "Order Date" : "Date"}:</b> ${escapeHtml(format(new Date(order.createdAt), "d/M/yyyy"))}</div>
+      ${isChallan ? `<div><b>Print Date:</b> ${escapeHtml(format(new Date(), "d/M/yyyy"))}</div>` : `<div><b>Payment:</b> ${paymentLine}</div>`}
+      ${shippingArea ? `<div><b>Shipping:</b> ${escapeHtml(shippingArea)}</div>` : ""}
+    </div>
+  </div>
+
+  ${itemsTable}
+
+  ${isChallan ? "" : `<div class="bottom">
+    <div></div>
+    ${totalsTable}
+  </div>`}
+
+  <div class="price-note"><b>Notes:</b> Price Excluding TAX &amp; VAT.</div>
+
+  ${receivedBlock}`;
+
   return `<!doctype html>
 <html>
 <head>
 <meta charset="utf-8" />
-<title>${isChallan ? "Challan" : "Invoice"} ${escapeHtml(order.orderNumber || order.id)}</title>
+<title>${title} ${escapeHtml(orderNo)}</title>
 <style>
   /* No page margin = no room for the browser's own header/footer
      (date, title, URL, page number); the spacing lives in .page instead */
@@ -180,6 +339,7 @@ const buildInvoiceHtml = (
   h1 { font-size: 26px; margin: 26px 0 14px; letter-spacing: 0.5px; }
   .info { display: flex; justify-content: space-between; gap: 24px; }
   .info > div > div { margin-bottom: 3px; }
+  .customer-name { font-weight: 700; }
   table { border-collapse: collapse; }
   table.items { width: 100%; margin-top: 24px; }
   table.items th, table.items td { border: 1px solid #ddd; padding: 9px 8px; text-align: left; vertical-align: middle; }
@@ -197,8 +357,17 @@ const buildInvoiceHtml = (
   .footer { margin-top: 48px; text-align: center; font-size: 11px; color: #333; line-height: 1.6; }
   .heart { color: #e11d48; }
   table.items tfoot td { font-weight: 700; }
-  .signatures { display: flex; justify-content: space-between; gap: 48px; margin-top: 64px; }
-  .signatures div { flex: 1; max-width: 200px; border-top: 1px solid #111; padding-top: 6px; text-align: center; }
+  .price-note { margin-top: 18px; }
+  .received { margin-top: 28px; page-break-inside: avoid; }
+  .received-note { font-style: italic; margin-bottom: 8px; }
+  .sign-row { display: flex; justify-content: space-between; gap: 32px; margin-top: 56px; page-break-inside: avoid; }
+  .received .sign-row { margin-top: 48px; }
+  .sign { flex: 1; max-width: 200px; text-align: center; font-size: 11px; }
+  .sign-line { border-top: 1px solid #111; margin-bottom: 6px; }
+  .amount-box { margin-top: 24px; border: 2px solid #111; padding: 14px 16px; }
+  .amount-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #555; }
+  .amount-value { font-size: 24px; font-weight: 800; margin: 2px 0 6px; }
+  .pay-info > div { margin-bottom: 3px; text-transform: none; }
 </style>
 </head>
 <body>
@@ -215,59 +384,7 @@ const buildInvoiceHtml = (
     </div>
   </div>
 
-  <h1>${isChallan ? "DELIVERY CHALLAN" : "INVOICE"}</h1>
-
-  <div class="info">
-    <div>
-      <div><b>${isChallan ? "Deliver To" : "Bill To"}</b></div>
-      <div>${escapeHtml(order.fullName || "Customer")}</div>
-      ${order.address ? `<div>${escapeHtml([order.address, order.district].filter(Boolean).join(", "))}</div>` : ""}
-      ${order.phone ? `<div>Phone: ${escapeHtml(order.phone)}</div>` : ""}
-      ${email ? `<div>Email: ${escapeHtml(email)}</div>` : ""}
-      ${order.notes ? `<div class="note"><b>Note:</b> ${escapeHtml(order.notes)}</div>` : ""}
-    </div>
-    <div>
-      <div><b>${isChallan ? "Challan No" : "Invoice No"}:</b> ${escapeHtml(order.orderNumber || order.id)}</div>
-      <div><b>${isChallan ? "Order Date" : "Date"}:</b> ${escapeHtml(format(new Date(order.createdAt), "d/M/yyyy"))}</div>
-      ${isChallan ? `<div><b>Print Date:</b> ${escapeHtml(format(new Date(), "d/M/yyyy"))}</div>` : `<div><b>Payment:</b> ${paymentMethod ? `${escapeHtml(paymentMethod)} (${escapeHtml(order.paymentStatus.toLowerCase())})` : escapeHtml(order.paymentStatus.toLowerCase())}</div>`}
-      ${shippingArea ? `<div><b>Shipping:</b> ${escapeHtml(shippingArea)}</div>` : ""}
-    </div>
-  </div>
-
-  <table class="items">
-    <thead>
-      <tr>
-        <th>Product</th>
-        ${attributeColumns.map((col) => `<th>${escapeHtml(col)}</th>`).join("")}
-        ${hasFallback ? "<th>Variant</th>" : ""}
-        <th class="center" style="width:${isChallan ? 80 : 48}px">${isChallan ? "Quantity" : "Qty"}</th>
-        ${isChallan ? "" : `<th style="width:80px">Unit Price</th>
-        <th style="width:90px">Total</th>`}
-      </tr>
-    </thead>
-    <tbody>${bodyRows}</tbody>
-    ${isChallan ? `<tfoot>
-      <tr>
-        <td colspan="${1 + attributeColumns.length + (hasFallback ? 1 : 0)}" style="text-align:right">Total Quantity</td>
-        <td class="center">${totalQty}</td>
-      </tr>
-    </tfoot>` : ""}
-  </table>
-
-  <div class="bottom">
-    <div></div>
-    ${isChallan ? "" : `<table class="totals">
-      <tr><td>Subtotal</td><td>${money(subtotal)}</td></tr>
-      <tr><td>Shipping</td><td>${money(order.shippingFee)}</td></tr>
-      ${order.discountAmount > 0 ? `<tr><td>Discount</td><td>-${money(order.discountAmount)}</td></tr>` : ""}
-      <tr class="grand"><td>Grand Total</td><td>${money(order.totalAmount)}</td></tr>
-    </table>`}
-  </div>
-
-  ${isChallan ? `<div class="signatures">
-    <div>Received By</div>
-    <div>Authorized Signature</div>
-  </div>` : ""}
+  ${documentBody}
 
   <div class="footer">
     <div>Thank you for shopping at ${escapeHtml(siteName.toUpperCase())} <span class="heart">&#10084;</span></div>
@@ -339,3 +456,6 @@ export const printOrderInvoice = (order: IOrder, site?: ISiteSetting | null) =>
 
 export const printOrderChallan = (order: IOrder, site?: ISiteSetting | null) =>
   printHtml(buildInvoiceHtml(order, site, "challan"));
+
+export const printOrderMoneyReceipt = (order: IOrder, site?: ISiteSetting | null) =>
+  printHtml(buildInvoiceHtml(order, site, "receipt"));

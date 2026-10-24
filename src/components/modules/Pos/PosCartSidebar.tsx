@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Minus, Plus, Trash2, ShoppingBag, Tag, Percent } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Tag, Percent, Truck } from "lucide-react";
 import { updatePosCartItemQuantity, removePosCartItem, clearPosCart } from "@/services/pos.services";
 import { toast } from "sonner";
 import PosCheckoutModal from "./PosCheckoutModal";
@@ -19,6 +19,9 @@ export default function PosCartSidebar({ cartItems, refreshCart }: { cartItems: 
   // VAT state
   const [vatPercent, setVatPercent] = useState<number | "">("");
 
+  // Shipping, entered by hand (e.g. when the walk-in order is delivered)
+  const [shippingValue, setShippingValue] = useState<number | "">("");
+
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   // Calculate discount amount
@@ -33,7 +36,9 @@ export default function PosCartSidebar({ cartItems, refreshCart }: { cartItems: 
   // Calculate VAT on discounted amount
   const vatAmount = vatPercent === "" ? 0 : (afterDiscount * Number(vatPercent)) / 100;
 
-  const total = afterDiscount + vatAmount;
+  const shippingCharge = shippingValue === "" ? 0 : Math.max(0, Number(shippingValue));
+
+  const total = afterDiscount + vatAmount + shippingCharge;
 
   const fmt = (v: number) => v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -196,6 +201,20 @@ export default function PosCartSidebar({ cartItems, refreshCart }: { cartItems: 
             />
           </div>
 
+          {/* Shipping Row */}
+          <div className="flex items-center gap-2">
+            <Truck className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <span className="text-xs text-gray-500 flex-shrink-0">Shipping ৳</span>
+            <input
+              type="number"
+              min={0}
+              value={shippingValue}
+              onChange={(e) => setShippingValue(e.target.value === "" ? "" : Number(e.target.value))}
+              placeholder="0"
+              className="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-primary w-0"
+            />
+          </div>
+
           {/* Summary Lines */}
           <div className="pt-2 space-y-1.5">
             <div className="flex justify-between text-sm text-gray-600">
@@ -212,6 +231,12 @@ export default function PosCartSidebar({ cartItems, refreshCart }: { cartItems: 
               <div className="flex justify-between text-sm text-gray-600">
                 <span>VAT ({vatPercent}%)</span>
                 <span className="font-medium text-gray-900">+৳{fmt(vatAmount)}</span>
+              </div>
+            )}
+            {shippingCharge > 0 && (
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Shipping</span>
+                <span className="font-medium text-gray-900">+৳{fmt(shippingCharge)}</span>
               </div>
             )}
             <div className="pt-2 border-t border-dashed border-gray-200 flex justify-between items-center">
@@ -236,6 +261,7 @@ export default function PosCartSidebar({ cartItems, refreshCart }: { cartItems: 
           subtotal={subtotal}
           discount={discountCapped}
           vatAmount={vatAmount}
+          shippingCharge={shippingCharge}
           total={total}
           cartItems={cartItems}
           onClose={() => setIsCheckoutOpen(false)}
@@ -243,6 +269,7 @@ export default function PosCartSidebar({ cartItems, refreshCart }: { cartItems: 
             setIsCheckoutOpen(false);
             setDiscountValue("");
             setVatPercent("");
+            setShippingValue("");
             refreshCart();
           }}
         />

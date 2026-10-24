@@ -1,18 +1,28 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Printer, Truck } from "lucide-react";
+import { HandCoins, Printer, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSiteSettings } from "@/services/siteSetting.services";
-import { printOrderChallan, printOrderInvoice } from "@/lib/printOrderInvoice";
+import {
+  printOrderChallan,
+  printOrderInvoice,
+  printOrderMoneyReceipt,
+} from "@/lib/printOrderInvoice";
 import { IOrder } from "@/types/order.types";
 
-// Invoice and challan printer buttons for one order row; loads the company
-// details once and reuses them
+const PRINTERS = {
+  invoice: printOrderInvoice,
+  challan: printOrderChallan,
+  receipt: printOrderMoneyReceipt,
+};
+
+// Invoice, challan and money receipt printer buttons for one order row; loads
+// the company details once and reuses them
 export default function PrintInvoiceButton({ order }: { order: IOrder }) {
   const queryClient = useQueryClient();
 
-  const handlePrint = async (kind: "invoice" | "challan") => {
+  const handlePrint = async (kind: keyof typeof PRINTERS) => {
     const siteSettings = await queryClient
       .fetchQuery({
         queryKey: ["site-settings"],
@@ -20,8 +30,7 @@ export default function PrintInvoiceButton({ order }: { order: IOrder }) {
         staleTime: 10 * 60 * 1000,
       })
       .catch(() => null);
-    if (kind === "challan") printOrderChallan(order, siteSettings);
-    else printOrderInvoice(order, siteSettings);
+    PRINTERS[kind](order, siteSettings);
   };
 
   return (
@@ -47,6 +56,17 @@ export default function PrintInvoiceButton({ order }: { order: IOrder }) {
       >
         <Truck className="size-4" />
         Challan
+      </Button>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        onClick={() => handlePrint("receipt")}
+        title="Print A4 money receipt"
+        className="h-8 gap-1.5 rounded-lg font-semibold"
+      >
+        <HandCoins className="size-4" />
+        Receipt
       </Button>
     </>
   );

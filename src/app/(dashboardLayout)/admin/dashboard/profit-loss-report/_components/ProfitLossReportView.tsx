@@ -180,7 +180,7 @@ export default function ProfitLossReportView() {
         <StatsCard
           title="Gross Profit"
           value={fmt(profit.allTime)}
-          iconName="BadgeDollarSign"
+          iconName="Banknote"
           description="After cost & discount, before expense"
         />
         <StatsCard

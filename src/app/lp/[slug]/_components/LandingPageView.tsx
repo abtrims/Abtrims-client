@@ -26,7 +26,10 @@ import { ILandingPage } from "@/types/landingPage.types";
 import { ISiteSetting } from "@/types/siteSetting.types";
 import { placeLandingPageOrder } from "@/services/landingPage.services";
 import { getPaymentSettings } from "@/services/paymentSetting.services";
-import { initiateBkashGuestPayment } from "@/services/payment.services";
+import {
+  initiateBkashGuestPayment,
+  initiateBkashPayment,
+} from "@/services/payment.services";
 import PaymentMethodPicker, {
   availablePaymentMethods,
   PaymentMethod,
@@ -81,6 +84,7 @@ export default function LandingPageView({ landingPage, siteSettings }: LandingPa
   const [quantity, setQuantity] = useState(1);
 
   const [fullName, setFullName] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [district, setDistrict] = useState("");
@@ -286,6 +290,7 @@ export default function LandingPageView({ landingPage, siteSettings }: LandingPa
     try {
       const res = await placeLandingPageOrder(landingPage.slug, {
         fullName: fullName.trim(),
+        companyName: companyName.trim() || undefined,
         phone: phone.trim(),
         address: address.trim(),
         district,
@@ -301,7 +306,10 @@ export default function LandingPageView({ landingPage, siteSettings }: LandingPa
         clearCheckoutSessionToken();
         if (paymentMethod === "BKASH") {
           try {
-            const payRes = await initiateBkashGuestPayment(res.data.id);
+            // Logged-in customers get the order on their account
+            const payRes = await (res.data.userId
+              ? initiateBkashPayment
+              : initiateBkashGuestPayment)(res.data.id);
             if (payRes.data?.bkashURL) {
               window.location.href = payRes.data.bkashURL;
               return;
@@ -318,6 +326,10 @@ export default function LandingPageView({ landingPage, siteSettings }: LandingPa
       } else {
         toast.error(res.message || "Failed to place order");
         setIsSubmitting(false);
+        // Guest checkout is off: log in, then come back to this page
+        if ("code" in res && res.code === "LOGIN_REQUIRED") {
+          router.push(`/login?redirect=${encodeURIComponent(`/lp/${landingPage.slug}`)}`);
+        }
       }
     } catch (error: any) {
       toast.error(error.message || "Something went wrong. Please try again.");
@@ -506,6 +518,14 @@ export default function LandingPageView({ landingPage, siteSettings }: LandingPa
                 onBlur={() => saveCheckoutProgressRef.current()}
                 className="h-12 rounded-xl"
                 required
+              />
+              <Input
+                placeholder="Company Name (optional)"
+                autoComplete="organization"
+                maxLength={200}
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                className="h-12 rounded-xl"
               />
               <div className="space-y-1">
                 <Input

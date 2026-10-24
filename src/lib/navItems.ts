@@ -79,7 +79,7 @@ export const adminNavItems: NavSection[] = [
       {
         title: "POS Orders",
         href: "/admin/dashboard/pos-orders",
-        icon: "Receipt",
+        icon: "ReceiptText",
       },
       {
         title: "Order Returns",

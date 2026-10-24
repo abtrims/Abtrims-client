@@ -145,21 +145,21 @@ const Navbar = ({ userInfo, className, siteSettings }: NavbarProps) => {
       {/* Top Bar: contact info + social links, stays fixed with the header */}
       {hasTopBar && (
         <div className="border-b bg-slate-100 text-slate-700 transition-colors dark:border-white/5 dark:bg-[#0f172a] dark:text-white">
-          <div className="container mx-auto flex h-11 items-center justify-between gap-4 px-4 text-sm font-semibold tracking-wide md:px-8">
-            <div className="flex min-w-0 items-center gap-4 sm:gap-6">
+          <div className="container mx-auto flex h-10 sm:h-11 items-center justify-between gap-3 px-3 sm:px-4 md:px-8 text-xs sm:text-sm font-semibold tracking-wide">
+            <div className="flex min-w-0 items-center gap-3 sm:gap-6">
               {phone && (
                 <a
                   href={`tel:${phone.replace(/[^\d+]/g, "")}`}
-                  className="flex shrink-0 items-center gap-2 hover:text-primary transition-colors"
+                  className="flex shrink-0 items-center gap-1.5 sm:gap-2 hover:text-primary transition-colors whitespace-nowrap"
                 >
-                  <Phone className="h-4 w-4 text-primary" />
+                  <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 text-primary" />
                   <span>{phone}</span>
                 </a>
               )}
               {email && (
                 <a
                   href={`mailto:${email}`}
-                  className="hidden min-w-0 items-center gap-2 hover:text-primary transition-colors sm:flex"
+                  className="hidden min-w-0 items-center gap-2 hover:text-primary transition-colors md:flex"
                 >
                   <Mail className="h-4 w-4 shrink-0 text-primary" />
                   <span className="truncate">{email}</span>
@@ -167,32 +167,34 @@ const Navbar = ({ userInfo, className, siteSettings }: NavbarProps) => {
               )}
             </div>
 
-            <div className="flex shrink-0 items-center gap-4">
+            <div className="flex shrink-0 items-center gap-2.5 sm:gap-4">
               {profilePdf && (
                 <a
                   href={sampleWorkViewUrl(profilePdf)}
                   target="_blank"
                   rel="noopener noreferrer"
                   title={profilePdf.title}
-                  className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                  className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 sm:px-3"
                 >
-                  <FileDown className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Download {siteName} Profile</span>
-                  <span className="sm:hidden">Profile</span>
+                  <FileDown className="h-3.5 w-3.5 shrink-0" />
+                  <span className="hidden md:inline">Download {siteName} Profile</span>
+                  <span className="md:hidden">Profile</span>
                 </a>
               )}
-              {socialLinks.map(({ icon: Icon, label, href }) => (
-                <a
-                  key={label}
-                  href={href ?? undefined}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="hover:text-primary transition-colors"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
+              <div className="hidden sm:flex items-center gap-3 md:gap-4">
+                {socialLinks.map(({ icon: Icon, label, href }) => (
+                  <a
+                    key={label}
+                    href={href ?? undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="hover:text-primary transition-colors"
+                  >
+                    <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </div>

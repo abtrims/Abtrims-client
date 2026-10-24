@@ -39,6 +39,7 @@ export interface IOrder {
   orderType: OrderType;
   totalAmount: number;
   fullName: string;
+  companyName?: string | null;
   phone: string;
   email?: string | null;
   address: string;
@@ -49,6 +50,7 @@ export interface IOrder {
   paymentMethod?: string | null;
   discountAmount: number;
   shippingFee: number;
+  vatAmount: number;
   couponId?: string | null;
   courierProvider?: CourierProvider | null;
   courierConsignmentId?: string | null;
@@ -92,7 +94,9 @@ export interface IPublicOrder {
   totalAmount: number;
   discountAmount: number;
   shippingFee: number;
+  vatAmount: number;
   fullName: string;
+  companyName?: string | null;
   phone: string;
   email?: string | null;
   address: string;

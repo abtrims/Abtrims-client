@@ -21,6 +21,7 @@ const getAuthHeaders = async () => {
 
 export async function createOrder(payload: {
   fullName: string;
+  companyName?: string;
   phone: string;
   email?: string;
   address: string;
@@ -30,17 +31,19 @@ export async function createOrder(payload: {
   checkoutSessionToken?: string;
 }) {
   try {
+    // Not logged in: place it as a guest order (allowed while guest checkout
+    // is on in Site Settings)
     const headers = await getAuthHeaders();
-    if (!headers)
-      return { success: false, message: "Unauthorized", code: "UNAUTHORIZED" };
-
-    const res = await fetch(`${BASE_API_URL}/orders`, {
+    const res = await fetch(`${BASE_API_URL}/orders${headers ? "" : "/guest"}`, {
       method: "POST",
-      headers,
+      headers: headers ?? { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     const result = await res.json();
+    if (!headers && res.status === 403) {
+      return { ...result, code: "LOGIN_REQUIRED" };
+    }
     if (res.ok) {
       revalidateTag("cart", "max");
       revalidateTag("orders", "max");

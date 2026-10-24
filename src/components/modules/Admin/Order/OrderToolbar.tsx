@@ -31,6 +31,7 @@ const toRow = (order: IOrder) => {
     Date: format(new Date(order.createdAt), "yyyy-MM-dd HH:mm"),
     Type: order.orderType.replace("_", " "),
     Customer: order.fullName,
+    Company: order.companyName ?? "",
     Phone: order.phone,
     Email: order.user?.email ?? "",
     Address: order.address,

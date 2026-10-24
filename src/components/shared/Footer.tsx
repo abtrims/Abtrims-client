@@ -16,11 +16,6 @@ interface FooterProps {
 }
 
 const footerLinks = {
-  shop: [
-    { name: "All Products", href: "/products" },
-    { name: "Categories", href: "/#categories" },
-    { name: "New Arrivals", href: "/products?sort=newest" },
-  ],
   company: [
     { name: "About Us", href: "/about" },
     { name: "Blogs", href: "/blogs" },
@@ -107,28 +102,7 @@ export default function Footer({ siteSettings }: FooterProps) {
           </div>
 
           {/* Quick Links */}
-          <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-6">
-            <div>
-              <h4 className="text-white font-black text-[10px] uppercase tracking-[0.2em] mb-6 text-slate-500">
-                Shop
-              </h4>
-              <ul className="space-y-3">
-                {footerLinks.shop.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-slate-400 text-sm font-bold hover:text-[#ee8a1e] transition-colors inline-flex items-center group"
-                    >
-                      <ArrowRight
-                        size={12}
-                        className="mr-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all"
-                      />
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="lg:col-span-4 grid grid-cols-2 gap-6">
             <div>
               <h4 className="text-white font-black text-[10px] uppercase tracking-[0.2em] mb-6 text-slate-500">
                 Company
@@ -174,7 +148,7 @@ export default function Footer({ siteSettings }: FooterProps) {
           </div>
 
           {/* Contact & Social */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="lg:col-span-4 space-y-6">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-[#ee8a1e]/10 flex items-center justify-center">
