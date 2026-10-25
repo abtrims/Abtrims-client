@@ -277,6 +277,7 @@ export default function HeroCarousel() {
                 alt={`Offer ${i + 1}`}
                 fill
                 sizes="(min-width: 1024px) 33vw, 50vw"
+                priority
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
             </MaybeLink>

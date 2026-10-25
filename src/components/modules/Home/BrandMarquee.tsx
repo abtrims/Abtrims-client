@@ -51,8 +51,10 @@ export default function BrandMarquee() {
                   <img
                     src={brand.logo}
                     alt={brand.name}
+                    width={96}
+                    height={96}
                     loading="lazy"
-                    className="max-h-full max-w-full object-contain"
+                    className="h-auto w-auto max-h-full max-w-full object-contain"
                   />
                 </Link>
               </li>

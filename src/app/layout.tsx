@@ -8,7 +8,6 @@ import { WishlistProvider } from "@/providers/WishlistProvider";
 import { Toaster } from "@/components/ui/sonner";
 import FloatingChatbot from "@/components/modules/Chatbot/FloatingChatbot";
 import SmoothScroll from "@/components/shared/SmoothScroll";
-import Preloader from "@/components/shared/Preloader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,7 +58,6 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Preloader />
           <QueryProviders>
             <CartProvider>
               <WishlistProvider>
