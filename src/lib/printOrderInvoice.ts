@@ -191,7 +191,7 @@ const buildInvoiceHtml = (
     .join("");
 
   const orderNo = order.orderNumber || order.id;
-  const title = isChallan ? "Challan" : isReceipt ? "Money Receipt" : "Invoice";
+  const title = isChallan ? "Challan" : isReceipt ? "Money Receipt" : "Bill Copy";
   const paymentStatus =
     order.paymentStatus.charAt(0) + order.paymentStatus.slice(1).toLowerCase();
   const paymentLine = paymentMethod
@@ -255,7 +255,7 @@ const buildInvoiceHtml = (
     <div>
       <div><b>Receipt No:</b> MR-${escapeHtml(orderNo)}</div>
       <div><b>Date:</b> ${escapeHtml(format(new Date(), "d/M/yyyy"))}</div>
-      <div><b>Invoice No:</b> ${escapeHtml(orderNo)}</div>
+      <div><b>Bill No:</b> ${escapeHtml(orderNo)}</div>
       <div><b>Order Date:</b> ${escapeHtml(format(new Date(order.createdAt), "d/M/yyyy"))}</div>
     </div>
   </div>
@@ -272,14 +272,13 @@ const buildInvoiceHtml = (
       <div><b>Payment Status:</b> ${escapeHtml(paymentStatus)}</div>
       ${order.notes ? `<div class="note"><b>Note:</b> ${escapeHtml(order.notes)}</div>` : ""}
     </div>
-    ${totalsTable}
   </div>
 
   <div class="sign-row">
-    <div class="sign"><div class="sign-line"></div>Customer Signature</div>
+    <div class="sign"><div class="sign-line"></div>Received By</div>
     <div class="sign"><div class="sign-line"></div>Authorized Signature</div>
   </div>`
-    : `<h1>${isChallan ? "DELIVERY CHALLAN" : "INVOICE"}</h1>
+    : `<h1>${isChallan ? "DELIVERY CHALLAN" : "BILL COPY"}</h1>
 
   <div class="info">
     <div>
@@ -288,7 +287,7 @@ const buildInvoiceHtml = (
       ${order.notes ? `<div class="note"><b>Note:</b> ${escapeHtml(order.notes)}</div>` : ""}
     </div>
     <div>
-      <div><b>${isChallan ? "Challan No" : "Invoice No"}:</b> ${escapeHtml(orderNo)}</div>
+      <div><b>${isChallan ? "Challan No" : "Bill No"}:</b> ${escapeHtml(orderNo)}</div>
       <div><b>${isChallan ? "Order Date" : "Date"}:</b> ${escapeHtml(format(new Date(order.createdAt), "d/M/yyyy"))}</div>
       ${isChallan ? `<div><b>Print Date:</b> ${escapeHtml(format(new Date(), "d/M/yyyy"))}</div>` : `<div><b>Payment:</b> ${paymentLine}</div>`}
       ${shippingArea ? `<div><b>Shipping:</b> ${escapeHtml(shippingArea)}</div>` : ""}
@@ -302,7 +301,7 @@ const buildInvoiceHtml = (
     ${totalsTable}
   </div>`}
 
-  <div class="price-note"><b>Notes:</b> Price Excluding TAX &amp; VAT.</div>
+  ${isChallan ? "" : `<div class="price-note"><b>Notes:</b> Price Excluding TAX &amp; VAT.</div>`}
 
   ${receivedBlock}`;
 

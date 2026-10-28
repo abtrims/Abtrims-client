@@ -454,6 +454,17 @@ function CheckoutContent() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
+                  <Label htmlFor="companyName">Company Name (Optional)</Label>
+                  <Input
+                    id="companyName"
+                    name="companyName"
+                    placeholder="Your company"
+                    autoComplete="organization"
+                    maxLength={200}
+                    className="h-12 rounded-xl"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
                   <Input
                     id="fullName"
@@ -466,6 +477,9 @@ function CheckoutContent() {
                     className="h-12 rounded-xl"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="phone">
                     Phone Number <span className="text-destructive">*</span>
@@ -489,20 +503,6 @@ function CheckoutContent() {
                       {getPhoneHint(phone)}
                     </p>
                   )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="companyName">Company Name (Optional)</Label>
-                  <Input
-                    id="companyName"
-                    name="companyName"
-                    placeholder="Your company"
-                    autoComplete="organization"
-                    maxLength={200}
-                    className="h-12 rounded-xl"
-                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address (Optional)</Label>

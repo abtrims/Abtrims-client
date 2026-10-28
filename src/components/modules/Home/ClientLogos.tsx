@@ -28,7 +28,7 @@ export default function ClientLogos() {
 
   return (
     <section aria-label="Our clients" className="space-y-6">
-      <SectionHeading eyebrow="Our Clients" title="Trusted by Leading Brands" />
+      <SectionHeading eyebrow="Our Clients" title="Trusted by Leading Companies/Factories" />
 
       <div className="group relative overflow-hidden rounded-2xl border bg-card py-4 [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
         <div
