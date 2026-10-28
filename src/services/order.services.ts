@@ -306,6 +306,43 @@ export async function deleteOrder(id: string) {
   }
 }
 
+// Bulk actions on the selected orders — the server reports how many succeeded / failed
+async function sendBulkOrderAction(path: string, method: "PATCH" | "DELETE", body: object) {
+  try {
+    const headers = await getAuthHeaders();
+    if (!headers) return { success: false, message: "Unauthorized" };
+
+    const res = await fetch(`${BASE_API_URL}/orders/bulk${path}`, {
+      method,
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    const result = await res.json();
+    if (res.ok) revalidateTag("orders", "max");
+    return result;
+  } catch (error) {
+    console.error("Error running bulk order action:", error);
+    return { success: false, message: "Something went wrong" };
+  }
+}
+
+export async function bulkUpdateOrderStatus(ids: string[], status: string) {
+  return sendBulkOrderAction("/status", "PATCH", { ids, status });
+}
+
+export async function bulkUpdatePaymentStatus(ids: string[], paymentStatus: string) {
+  return sendBulkOrderAction("/payment-status", "PATCH", { ids, paymentStatus });
+}
+
+export async function bulkAssignCourier(ids: string[], provider: "PATHAO" | "STEADFAST") {
+  return sendBulkOrderAction("/assign-courier", "PATCH", { ids, provider });
+}
+
+export async function bulkDeleteOrders(ids: string[]) {
+  return sendBulkOrderAction("", "DELETE", { ids });
+}
+
 export async function updateOrderItemStatus(itemId: string, status: string) {
   try {
     const headers = await getAuthHeaders();

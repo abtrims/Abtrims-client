@@ -38,7 +38,7 @@ import { Button } from "@/components/ui/button";
 import ResponsiveChartContainer from "@/components/shared/ResponsiveChartContainer";
 import { cn } from "@/lib/utils";
 
-type OrderStatus = "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+type OrderStatus = "PENDING" | "CONFIRMED" | "IN_COURIER" | "DELIVERED" | "CANCELLED";
 
 interface AdminAnalytics {
   summary: {
@@ -77,16 +77,16 @@ const STATUS_CARDS: {
   tone: string;
 }[] = [
   { status: "PENDING", label: "Pending", icon: Clock, tone: "bg-amber-500" },
-  { status: "PROCESSING", label: "Processing", icon: Loader, tone: "bg-sky-500" },
-  { status: "SHIPPED", label: "Shipped", icon: Truck, tone: "bg-indigo-500" },
+  { status: "CONFIRMED", label: "Confirmed", icon: Loader, tone: "bg-sky-500" },
+  { status: "IN_COURIER", label: "In Courier", icon: Truck, tone: "bg-indigo-500" },
   { status: "DELIVERED", label: "Delivered", icon: CheckCircle2, tone: "bg-emerald-500" },
   { status: "CANCELLED", label: "Cancelled", icon: Ban, tone: "bg-rose-500" },
 ];
 
 const STATUS_BADGE: Record<OrderStatus, string> = {
   PENDING: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
-  PROCESSING: "bg-sky-500/10 text-sky-700 dark:text-sky-400",
-  SHIPPED: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-400",
+  CONFIRMED: "bg-sky-500/10 text-sky-700 dark:text-sky-400",
+  IN_COURIER: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-400",
   DELIVERED: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
   CANCELLED: "bg-rose-500/10 text-rose-700 dark:text-rose-400",
 };
@@ -440,7 +440,7 @@ export default function AdminDashboardContent() {
                         STATUS_BADGE[order.orderStatus],
                       )}
                     >
-                      {order.orderStatus}
+                      {order.orderStatus.replace("_", " ")}
                     </span>
                   </div>
                 </li>

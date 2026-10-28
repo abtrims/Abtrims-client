@@ -126,14 +126,14 @@ export const orderColumns: ColumnDef<IOrder>[] = [
       const status = row.getValue("orderStatus") as string;
       const variants: Record<string, string> = {
         PENDING: "secondary",
-        PROCESSING: "outline",
-        SHIPPED: "default",
+        CONFIRMED: "outline",
+        IN_COURIER: "default",
         DELIVERED: "default",
         CANCELLED: "destructive",
       };
       return (
         <Badge variant={variants[status] as any} className="font-semibold">
-          {status}
+          {status.replace("_", " ")}
         </Badge>
       );
     },

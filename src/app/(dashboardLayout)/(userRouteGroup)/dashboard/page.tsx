@@ -182,7 +182,7 @@ export default function UserDashboardPage() {
                                 : "bg-blue-100 text-blue-600 hover:bg-blue-100"
                           }`}
                         >
-                          {order.orderStatus}
+                          {order.orderStatus.replace("_", " ")}
                         </Badge>
                       </td>
                     </tr>

@@ -13,7 +13,7 @@ export interface IPlatformSummary {
 }
 
 export type OrderTypeValue = "ONLINE" | "POS" | "LANDING_PAGE";
-export type OrderStatusValue = "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+export type OrderStatusValue = "PENDING" | "CONFIRMED" | "IN_COURIER" | "DELIVERED" | "CANCELLED";
 
 export interface IPlatformOverviewTotals {
   gmv: number;

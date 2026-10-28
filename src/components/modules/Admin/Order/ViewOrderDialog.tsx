@@ -163,7 +163,7 @@ export default function ViewOrderDialog({
                 {format(new Date(order.createdAt), "MMM d, yyyy h:mm a")}
               </p>
               <div className="flex justify-end gap-2 mt-1">
-                <Badge variant="outline">{order.orderStatus}</Badge>
+                <Badge variant="outline">{order.orderStatus.replace("_", " ")}</Badge>
                 <Badge
                   variant={
                     order.paymentStatus === "PAID" ? "default" : "secondary"

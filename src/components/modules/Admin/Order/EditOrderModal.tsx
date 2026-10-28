@@ -44,8 +44,8 @@ interface EditOrderModalProps {
 
 const STATUS_OPTIONS: OrderStatus[] = [
   "PENDING",
-  "PROCESSING",
-  "SHIPPED",
+  "CONFIRMED",
+  "IN_COURIER",
   "DELIVERED",
   "CANCELLED",
 ];
@@ -202,7 +202,7 @@ export default function EditOrderModal({
                 <SelectContent>
                   {STATUS_OPTIONS.map((opt) => (
                     <SelectItem key={opt} value={opt}>
-                      {opt}
+                      {opt.replace("_", " ")}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -221,7 +221,7 @@ export default function EditOrderModal({
                 <SelectContent>
                   {PAYMENT_STATUS_OPTIONS.map((opt) => (
                     <SelectItem key={opt} value={opt}>
-                      {opt}
+                      {opt.replace("_", " ")}
                     </SelectItem>
                   ))}
                 </SelectContent>

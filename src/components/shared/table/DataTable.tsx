@@ -23,6 +23,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   PaginationState,
+  RowSelectionState,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -57,6 +58,12 @@ interface DataTableProps<TData> {
     state: PaginationState;
     onPaginationChange: (state: PaginationState) => void;
   };
+  // Controlled row selection (rows keyed by getRowId), e.g. for bulk actions
+  rowSelection?: {
+    state: RowSelectionState;
+    onRowSelectionChange: (state: RowSelectionState) => void;
+    getRowId: (row: TData) => string;
+  };
   search?: {
     initialValue?: string;
     placeholder?: string;
@@ -84,6 +91,7 @@ const DataTable = <TData,>({
   isLoading,
   sorting,
   pagination,
+  rowSelection,
   search,
   filters,
   meta,
@@ -156,9 +164,11 @@ const DataTable = <TData,>({
     manualSorting: !!sorting,
     manualPagination: !!pagination,
     pageCount: pagination ? Math.max(meta?.totalPages ?? 0, 0) : undefined,
+    getRowId: rowSelection?.getRowId,
     state: {
       ...(sorting ? { sorting: sorting.state } : {}),
       ...(pagination ? { pagination: pagination.state } : {}),
+      ...(rowSelection ? { rowSelection: rowSelection.state } : {}),
     },
     onSortingChange: sorting
       ? (updater) => {
@@ -181,6 +191,17 @@ const DataTable = <TData,>({
               : updater;
 
           pagination.onPaginationChange(nextPaginationState);
+        }
+      : undefined,
+    onRowSelectionChange: rowSelection
+      ? (updater) => {
+          const currentRowSelectionState = rowSelection.state;
+          const nextRowSelectionState =
+            typeof updater === "function"
+              ? updater(currentRowSelectionState)
+              : updater;
+
+          rowSelection.onRowSelectionChange(nextRowSelectionState);
         }
       : undefined,
   });
@@ -265,7 +286,10 @@ const DataTable = <TData,>({
           <TableBody>
             {table.getRowModel()?.rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() ? "selected" : undefined}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(

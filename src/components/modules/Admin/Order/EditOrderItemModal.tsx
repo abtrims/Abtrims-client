@@ -34,7 +34,7 @@ interface EditOrderItemModalProps {
   item: any | null;
 }
 
-const LOCKED_STATUSES = ["SHIPPED", "DELIVERED", "CANCELLED"];
+const LOCKED_STATUSES = ["IN_COURIER", "DELIVERED", "CANCELLED"];
 
 export default function EditOrderItemModal({
   open,
@@ -64,7 +64,7 @@ export default function EditOrderItemModal({
 
   const orderStatus = item?.order?.orderStatus;
   const isPOS = item?.order?.orderType === "POS";
-  const isLocked = !isPOS && orderStatus && !["PENDING", "PROCESSING"].includes(orderStatus);
+  const isLocked = !isPOS && orderStatus && !["PENDING", "CONFIRMED"].includes(orderStatus);
 
   const selectedProduct =
     products.find((p) => p.id === productId) || (item?.product ? { ...item.product, id: item.productId, variants: [] } : null);

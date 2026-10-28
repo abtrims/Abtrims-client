@@ -1,6 +1,6 @@
 import { IUser } from "./user.types";
 
-export type OrderStatus = "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+export type OrderStatus = "PENDING" | "CONFIRMED" | "IN_COURIER" | "DELIVERED" | "CANCELLED";
 export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED";
 export type OrderType = "ONLINE" | "POS" | "LANDING_PAGE";
 export type CourierProvider = "PATHAO" | "STEADFAST" | "REDX";

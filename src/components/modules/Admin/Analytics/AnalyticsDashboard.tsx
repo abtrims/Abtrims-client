@@ -68,8 +68,8 @@ const STATUS_BADGE_VARIANT: Record<
   "secondary" | "outline" | "default" | "destructive"
 > = {
   PENDING: "secondary",
-  PROCESSING: "outline",
-  SHIPPED: "default",
+  CONFIRMED: "outline",
+  IN_COURIER: "default",
   DELIVERED: "default",
   CANCELLED: "destructive",
 };
@@ -405,7 +405,7 @@ export default function AnalyticsDashboard() {
                       variant={STATUS_BADGE_VARIANT[s.orderStatus] ?? "secondary"}
                       className="font-semibold"
                     >
-                      {s.orderStatus}
+                      {s.orderStatus.replace("_", " ")}
                     </Badge>
                     <span className="text-xl font-bold">{s.count}</span>
                   </div>

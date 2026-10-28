@@ -8,13 +8,16 @@ import { getAllOrders } from "@/services/order.services";
 import { PaginationMeta } from "@/types/api.types";
 import { IOrder } from "@/types/order.types";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { RowSelectionState } from "@tanstack/react-table";
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { usePermissions } from "@/providers/PermissionProvider";
 import { orderColumns } from "./orderColumns";
 import ViewOrderDialog from "./ViewOrderDialog";
 import EditOrderModal from "./EditOrderModal";
 import DeleteOrderDialog from "./DeleteOrderDialog";
 import OrderToolbar from "./OrderToolbar";
+import OrderBulkActions from "./OrderBulkActions";
 import {
   DataTableFilterConfig,
   DataTableFilterValue,
@@ -30,8 +33,8 @@ const ORDER_FILTERS: DataTableFilterConfig[] = [
     type: "single-select",
     options: [
       { label: "Pending", value: "PENDING" },
-      { label: "Processing", value: "PROCESSING" },
-      { label: "Shipped", value: "SHIPPED" },
+      { label: "Confirmed", value: "CONFIRMED" },
+      { label: "In Courier", value: "IN_COURIER" },
       { label: "Delivered", value: "DELIVERED" },
       { label: "Cancelled", value: "CANCELLED" },
     ],
@@ -157,8 +160,24 @@ const OrderTable = ({
   const orderList = orderResponse?.data ?? [];
   const meta: PaginationMeta | undefined = orderResponse?.meta;
 
+  // Selected rows (by order id) for bulk actions — kept per page/filter, so
+  // changing the page or a filter starts a fresh selection
+  const [selection, setSelection] = useState<{
+    queryString: string;
+    rows: RowSelectionState;
+  }>({ queryString: "", rows: {} });
+  const rowSelection = selection.queryString === queryString ? selection.rows : {};
+  const selectedOrders = orderList.filter((order: IOrder) => rowSelection[order.id]);
+
   return (
     <>
+      <OrderBulkActions
+        selectedOrders={selectedOrders}
+        onClearSelection={() => setSelection({ queryString, rows: {} })}
+        canUpdate={can("order.update")}
+        canDelete={can("order.delete")}
+      />
+
       <DataTable
         data={orderList}
         columns={orderColumns}
@@ -171,6 +190,11 @@ const OrderTable = ({
         pagination={{
           state: optimisticPaginationState,
           onPaginationChange: handlePaginationChange,
+        }}
+        rowSelection={{
+          state: rowSelection,
+          onRowSelectionChange: (rows) => setSelection({ queryString, rows }),
+          getRowId: (order) => order.id,
         }}
         search={{
           initialValue: searchTermFromUrl,

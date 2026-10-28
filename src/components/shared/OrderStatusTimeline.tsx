@@ -7,8 +7,8 @@ interface OrderStatusTimelineProps {
 
 const STEPS: { status: OrderStatus; label: string; icon: typeof Clock }[] = [
   { status: "PENDING", label: "Order Placed", icon: Clock },
-  { status: "PROCESSING", label: "Processing", icon: Package },
-  { status: "SHIPPED", label: "Shipped", icon: Truck },
+  { status: "CONFIRMED", label: "Confirmed", icon: Package },
+  { status: "IN_COURIER", label: "In Courier", icon: Truck },
   { status: "DELIVERED", label: "Delivered", icon: Check },
 ];
 
