@@ -199,8 +199,8 @@ const buildInvoiceHtml = (
     : escapeHtml(paymentStatus);
 
   const customerLines = `
-      <div class="customer-name">${escapeHtml(order.fullName || "Customer")}</div>
-      ${order.companyName ? `<div><b>Company:</b> ${escapeHtml(order.companyName)}</div>` : ""}
+      ${order.companyName ? `<div class="customer-name">${escapeHtml(order.companyName)}</div>` : ""}
+      <div${order.companyName ? "" : ` class="customer-name"`}>${escapeHtml(order.fullName || "Customer")}</div>
       ${order.address ? `<div>${escapeHtml([order.address, order.district].filter(Boolean).join(", "))}</div>` : ""}
       ${order.phone ? `<div>Phone: ${escapeHtml(order.phone)}</div>` : ""}
       ${email ? `<div>Email: ${escapeHtml(email)}</div>` : ""}`;

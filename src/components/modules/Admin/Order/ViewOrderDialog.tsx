@@ -144,10 +144,10 @@ export default function ViewOrderDialog({
               <p className="text-xs font-bold text-muted-foreground uppercase">
                 Customer
               </p>
-              <p className="font-bold">{order.fullName}</p>
               {order.companyName && (
-                <p className="text-sm font-medium">{order.companyName}</p>
+                <p className="font-bold">{order.companyName}</p>
               )}
+              <p className={order.companyName ? "text-sm font-medium" : "font-bold"}>{order.fullName}</p>
               <p className="text-sm">{order.phone}</p>
               {(order.email || order.user?.email) && (
                 <p className="text-sm text-muted-foreground break-all">
