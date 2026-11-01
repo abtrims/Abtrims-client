@@ -37,6 +37,7 @@ export default function GtmPurchaseTracker({ order }: { order: IPublicOrder }) {
           shipping: order.shippingFee,
           tax: 0,
           payment_type: order.paymentMethod ?? undefined,
+          company_name: order.companyName ?? undefined,
         },
       }),
     );
