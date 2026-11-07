@@ -82,6 +82,7 @@ type InvoiceItem = Omit<IOrder["items"][number], "product" | "productVariant"> &
     images: string[];
     sku?: string | null;
     attributes?: ProductAttribute[] | null;
+    shortDescription?: string | null;
   } | null;
   productVariant?: {
     combination: string;
@@ -164,6 +165,7 @@ const buildInvoiceHtml = (
     new Set(rows.flatMap((r) => (r.parts ? Object.keys(r.parts) : []))),
   );
   const hasFallback = rows.some((r) => r.fallback);
+  const hasDescription = items.some((item) => item.product?.shortDescription);
 
   const totalQty = items.reduce(
     (sum, item) => sum + item.quantity - item.returnedQuantity,
@@ -181,6 +183,7 @@ const buildInvoiceHtml = (
             ${code ? `<div class="muted">(Code: ${escapeHtml(code)})</div>` : ""}
             ${item.returnedQuantity > 0 ? `<div class="returned">${item.returnedQuantity} returned</div>` : ""}
           </td>
+          ${hasDescription ? `<td class="desc">${item.product?.shortDescription ?? ""}</td>` : ""}
           ${attributeColumns.map((col) => `<td>${escapeHtml(parts?.[col] ?? "")}</td>`).join("")}
           ${hasFallback ? `<td>${escapeHtml(fallback ?? "")}</td>` : ""}
           <td class="center">${keptQty}</td>
@@ -228,6 +231,7 @@ const buildInvoiceHtml = (
     <thead>
       <tr>
         <th>Product</th>
+        ${hasDescription ? "<th>Description</th>" : ""}
         ${attributeColumns.map((col) => `<th>${escapeHtml(col)}</th>`).join("")}
         ${hasFallback ? "<th>Variant</th>" : ""}
         <th class="center" style="width:${isChallan ? 80 : 48}px">${isChallan ? "Quantity" : "Qty"}</th>
@@ -238,7 +242,7 @@ const buildInvoiceHtml = (
     <tbody>${bodyRows}</tbody>
     ${isChallan ? `<tfoot>
       <tr>
-        <td colspan="${1 + attributeColumns.length + (hasFallback ? 1 : 0)}" style="text-align:right">Total Quantity</td>
+        <td colspan="${1 + (hasDescription ? 1 : 0) + attributeColumns.length + (hasFallback ? 1 : 0)}" style="text-align:right">Total Quantity</td>
         <td class="center">${totalQty}</td>
       </tr>
     </tfoot>` : ""}
@@ -345,6 +349,9 @@ const buildInvoiceHtml = (
   table.items th { font-weight: 700; }
   table.items tr { page-break-inside: avoid; }
   .muted { color: #555; }
+  .desc { font-size: 11px; color: #333; }
+  .desc p, .desc ul, .desc ol { margin: 0; }
+  .desc ul, .desc ol { padding-left: 16px; }
   .returned { color: #c00; font-size: 11px; }
   .center { text-align: center !important; }
   .bottom { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-top: 18px; }

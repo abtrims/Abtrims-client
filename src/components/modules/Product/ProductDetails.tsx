@@ -211,6 +211,14 @@ export default function ProductDetails({ product, siteSettings }: ProductDetails
               >
                 {displayStock > 0 ? "In Stock" : "Out of Stock"}
               </Badge>
+              {(product as any).brand?.name && (
+                <span className="text-sm text-muted-foreground">
+                  Brand:{" "}
+                  <span className="font-semibold text-foreground">
+                    {(product as any).brand.name}
+                  </span>
+                </span>
+              )}
             </div>
 
             <div className="flex items-end gap-3 mb-3">
