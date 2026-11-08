@@ -438,7 +438,7 @@ export default function AddProductForm() {
                   <SelectTrigger className="w-full bg-background/50 focus-visible:ring-primary/20">
                     <SelectValue placeholder="Select Parent Category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-72">
                     {parentCategories.map((cat: any) => (
                       <SelectItem key={cat.id} value={cat.id}>
                         {cat.name}
@@ -461,7 +461,7 @@ export default function AddProductForm() {
                       <SelectTrigger className="w-full bg-background/50 focus-visible:ring-primary/20">
                         <SelectValue placeholder={childCategories.length > 0 ? "Select Sub Category" : "No Sub Categories"} />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-72">
                         {childCategories.map((cat: any) => (
                           <SelectItem key={cat.id} value={cat.id}>
                             {cat.name}
